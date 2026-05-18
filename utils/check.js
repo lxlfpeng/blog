@@ -1,10 +1,21 @@
 const isWin = process.platform === 'win32';
+const path = require('path');
+const { validateDocs } = require('./validateDocs');
+const args = process.argv.slice(2)
+const scriptType = args[0]
+
+if (scriptType === 'dev' || scriptType === 'build') {
+  const issues = validateDocs(path.resolve(__dirname, '../docs'));
+  if (issues.length) {
+    console.log('\x1b[31m', '\n[vdoing] 文档检查失败：\n')
+    issues.forEach(issue => console.log('\x1b[31m', `- ${issue}`))
+    process.exit(1)
+  }
+}
 
 // 如果是 windows 平台
 if (isWin) {
   const {dev: devScriptStr, build: buildScriptStr} = require('../package.json').scripts
-  const args = process.argv.slice(2)
-  const scriptType = args[0]
   const fRed = "\x1b[31m"
 
   const warnFn = (type) => {
